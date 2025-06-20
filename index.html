@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
+            max-width: 700px;
             margin: 50px auto;
             padding: 20px;
             background: #f5f5f5;
@@ -44,15 +44,36 @@
             border-radius: 5px;
             text-align: left;
         }
+        .status-box {
+            background: white;
+            padding: 15px;
+            border-left: 4px solid #28a745;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-left: 4px solid #2196f3;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+        .contact-box {
+            background: #fff3e0;
+            padding: 15px;
+            border-left: 4px solid #ff9800;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
         .track-button {
             display: inline-block;
             background: #28a745;
             color: white;
-            padding: 10px 15px;
+            padding: 8px 12px;
             text-decoration: none;
             border-radius: 5px;
-            margin: 5px;
-            font-weight: bold;
+            margin: 3px;
+            font-size: 14px;
         }
         .track-button:hover {
             background: #218838;
@@ -65,28 +86,36 @@
 <body>
     <div class="container">
         <h1>📦 Track Your Package</h1>
-        <p>Enter your tracking number below:</p>
+        <p>Enter your tracking number to get shipping updates:</p>
         
         <input type="text" id="trackingInput" placeholder="e.g., TX294368367">
         <br>
-        <button onclick="trackPackage()">Get Tracking Links</button>
+        <button onclick="trackPackage()">Track Package</button>
         
         <div id="result" class="result hidden"></div>
     </div>
 
     <script>
-        // 🔧 YOUR TRACKING DATABASE - UPDATE THIS WITH YOUR MAPPINGS
+        // 🔧 YOUR TRACKING DATABASE
         const trackingDatabase = {
             'TX294368367': {
                 real: 'UK294368367',
-                status: 'Delivered',  // Update manually: Shipped, In Transit, Delivered
-                date: '2024-06-20'
+                status: 'Shipped',
+                carrier: 'Amazon Logistics',
+                shipped_date: '2024-06-19',
+                estimated_delivery: '2024-06-21',
+                last_update: '2024-06-20 10:30 AM',
+                notes: 'Package processed at Amazon facility'
             },
-            // Add more like this:
+            // Add more tracking numbers like this:
             // 'TX294368368': {
-            //     real: 'UK294368368', 
+            //     real: 'UK294368368',
             //     status: 'In Transit',
-            //     date: '2024-06-21'
+            //     carrier: 'Amazon Logistics',
+            //     shipped_date: '2024-06-20',
+            //     estimated_delivery: '2024-06-22',
+            //     last_update: '2024-06-20 2:15 PM',
+            //     notes: 'Out for delivery'
             // }
         };
 
@@ -99,54 +128,53 @@
                 return;
             }
 
-            // Look up tracking info
             const trackingInfo = trackingDatabase[proxyNumber];
             
             if (!trackingInfo) {
                 resultDiv.className = 'result';
                 resultDiv.innerHTML = `
-                    <strong>❌ Tracking number not found</strong><br>
-                    Please check your tracking number and try again.
+                    <div class="status-box" style="border-left-color: #f44336;">
+                        <strong>❌ Tracking number not found</strong><br>
+                        Please check your tracking number and try again.<br>
+                        <small>Make sure you entered the complete tracking number from your eBay message.</small>
+                    </div>
                 `;
+                resultDiv.classList.remove('hidden');
                 return;
             }
 
-            const realTracking = trackingInfo.real;
-            const status = trackingInfo.status;
-            const date = trackingInfo.date;
-
-            // Show tracking result with working links
+            // Show comprehensive tracking information
             resultDiv.className = 'result';
             resultDiv.innerHTML = `
-                <div style="background: white; padding: 15px; border-left: 4px solid #28a745; margin-bottom: 15px;">
+                <div class="status-box">
                     <strong>✅ Package Found!</strong><br><br>
-                    <strong>Your Tracking:</strong> ${proxyNumber}<br>
-                    <strong>Real Tracking:</strong> ${realTracking}<br>
-                    <strong>Status:</strong> ${status}<br>
-                    <strong>Last Updated:</strong> ${date}
+                    <strong>📦 Your Tracking Number:</strong> ${proxyNumber}<br>
+                    <strong>🚚 Carrier:</strong> ${trackingInfo.carrier}<br>
+                    <strong>📍 Current Status:</strong> ${trackingInfo.status}<br>
+                    <strong>📅 Shipped Date:</strong> ${trackingInfo.shipped_date}<br>
+                    <strong>🎯 Estimated Delivery:</strong> ${trackingInfo.estimated_delivery}<br>
+                    <strong>🕒 Last Update:</strong> ${trackingInfo.last_update}<br>
+                    <strong>📝 Notes:</strong> ${trackingInfo.notes}
                 </div>
-                
-                <h3>🔍 Track Your Package:</h3>
-                <p><strong>Click any link below for live tracking:</strong></p>
-                
-                <a href="https://www.17track.net/en/track#nums=${realTracking}" target="_blank" class="track-button">
-                    🌍 17Track (Recommended)
-                </a>
-                
-                <a href="https://www.trackingmore.com/track/en/${realTracking}" target="_blank" class="track-button">
-                    📦 TrackingMore
-                </a>
-                
-                <a href="https://track.amazon.co.uk/tracking/${realTracking}" target="_blank" class="track-button">
-                    🛒 Amazon UK
-                </a>
-                
-                <a href="https://www.royalmail.com/track-your-item#/tracking-results/${realTracking}" target="_blank" class="track-button">
-                    📮 Royal Mail
-                </a>
-                
-                <div style="margin-top: 20px; padding: 10px; background: #e3f2fd; border-radius: 5px;">
-                    <strong>💡 Pro Tip:</strong> 17Track usually shows the most accurate tracking information for Amazon UK packages.
+
+                <div class="info-box">
+                    <strong>🔍 Want More Details?</strong><br>
+                    Try these tracking services with carrier tracking number: <strong>${trackingInfo.real}</strong><br><br>
+                    
+                    <a href="https://www.17track.net/en/track#nums=${trackingInfo.real}" target="_blank" class="track-button">17Track</a>
+                    <a href="https://www.trackingmore.com/track/en/${trackingInfo.real}" target="_blank" class="track-button">TrackingMore</a>
+                    <a href="https://track.amazon.co.uk/tracking/${trackingInfo.real}" target="_blank" class="track-button">Amazon UK</a>
+                    <a href="https://www.royalmail.com/track-your-item#/tracking-results/${trackingInfo.real}" target="_blank" class="track-button">Royal Mail</a><br>
+                    
+                    <small><em>⚠️ Note: Some external tracking services may not show updates immediately or may show "not found" - this is normal for Amazon UK packages.</em></small>
+                </div>
+
+                <div class="contact-box">
+                    <strong>📞 Need Help?</strong><br>
+                    If you need more information about your delivery or have any concerns, please contact us:<br>
+                    • Reply to your eBay message<br>
+                    • We'll provide updates manually if needed<br>
+                    • Most packages arrive within the estimated timeframe even if tracking doesn't update
                 </div>
             `;
             
